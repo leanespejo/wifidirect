@@ -8,12 +8,11 @@ workflows:
       vars:
         JAVA_VERSION: 17
         ANDROID_HOME: /opt/android-sdk-linux
-      secure:
-        # these are stored in Codemagic UI (not literally here)
-        # CM_KEYSTORE: Encrypted keystore file
-        # CM_KEYSTORE_PASSWORD: Keystore password
-        # CM_KEY_ALIAS: Key alias
-        # CM_KEY_PASSWORD: Key password
+        # Secure variables must be added in Codemagic UI, NOT here:
+        # CM_KEYSTORE
+        # CM_KEYSTORE_PASSWORD
+        # CM_KEY_ALIAS
+        # CM_KEY_PASSWORD
 
     scripts:
       - name: Accept Android licenses and install SDK packages
@@ -25,6 +24,4 @@ workflows:
         script: |
           echo "🔢 Incrementing versionCode..."
           VERSION_CODE=$(grep versionCode app/build.gradle | awk '{print $2}')
-          NEW_VERSION_CODE=$((VERSION_CODE + 1))
-          sed -i "s/versionCode .*/versionCode ${NEW_VERSION_CODE}/" app/build.gradle
-          ech
+          NEW_VERSION_CODE
