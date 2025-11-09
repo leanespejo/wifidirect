@@ -1,31 +1,30 @@
 workflows:
   build-apk:
-    name: Build WiFi Direct Launcher APK
-    max_build_duration: 20
+    name: WiFi Direct Launcher - Build & Sign APK
+    max_build_duration: 30
     instance_type: linux_x2
 
     environment:
       vars:
+        JAVA_VERSION: 17
         ANDROID_HOME: /opt/android-sdk-linux
-      java: 17
-      android: 34
+      secure:
+        # these are stored in Codemagic UI (not literally here)
+        # CM_KEYSTORE: Encrypted keystore file
+        # CM_KEYSTORE_PASSWORD: Keystore password
+        # CM_KEY_ALIAS: Key alias
+        # CM_KEY_PASSWORD: Key password
 
     scripts:
-      - name: Prepare environment
+      - name: Accept Android licenses and install SDK packages
         script: |
-          echo "✅ Setting up environment..."
           sdkmanager --licenses || true
           sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools"
 
-      - name: Build debug APK
+      - name: Auto-increment versionCode
         script: |
-          echo "🏗️ Building APK..."
-          ./gradlew assembleDebug
-
-    artifacts:
-      - app/build/outputs/**/*.apk
-
-    publishing:
-      email:
-        recipients:
-          - your@email.com     # optional: Codemagic can email you the APK link
+          echo "🔢 Incrementing versionCode..."
+          VERSION_CODE=$(grep versionCode app/build.gradle | awk '{print $2}')
+          NEW_VERSION_CODE=$((VERSION_CODE + 1))
+          sed -i "s/versionCode .*/versionCode ${NEW_VERSION_CODE}/" app/build.gradle
+          ech
