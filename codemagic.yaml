@@ -1,0 +1,31 @@
+workflows:
+  build-apk:
+    name: Build WiFi Direct Launcher APK
+    max_build_duration: 20
+    instance_type: linux_x2
+
+    environment:
+      vars:
+        ANDROID_HOME: /opt/android-sdk-linux
+      java: 17
+      android: 34
+
+    scripts:
+      - name: Prepare environment
+        script: |
+          echo "✅ Setting up environment..."
+          sdkmanager --licenses || true
+          sdkmanager "platforms;android-34" "build-tools;34.0.0" "platform-tools"
+
+      - name: Build debug APK
+        script: |
+          echo "🏗️ Building APK..."
+          ./gradlew assembleDebug
+
+    artifacts:
+      - app/build/outputs/**/*.apk
+
+    publishing:
+      email:
+        recipients:
+          - your@email.com     # optional: Codemagic can email you the APK link
