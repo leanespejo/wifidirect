@@ -2,13 +2,13 @@ workflows:
   build-apk:
     name: WiFi Direct Launcher - Build & Sign APK
     max_build_duration: 30
-    instance_type: linux
+    instance_type: linux   # free-plan compatible
 
     environment:
       vars:
         JAVA_VERSION: 17
         ANDROID_HOME: /opt/android-sdk-linux
-        # Secure variables must be added in Codemagic UI, NOT here:
+        # Secure variables must be added in Codemagic UI:
         # CM_KEYSTORE
         # CM_KEYSTORE_PASSWORD
         # CM_KEY_ALIAS
@@ -24,4 +24,15 @@ workflows:
         script: |
           echo "🔢 Incrementing versionCode..."
           VERSION_CODE=$(grep versionCode app/build.gradle | awk '{print $2}')
-          NEW_VERSION_CODE
+          NEW_VERSION_CODE=$((VERSION_CODE + 1))
+          sed -i "s/versionCode .*/versionCode ${NEW_VERSION_CODE}/" app/build.gradle
+          echo "versionCode is now ${NEW_VERSION_CODE}"
+
+      - name: Build debug APK
+        script: |
+          echo "🏗️ Building debug APK..."
+          ./gradlew assembleDebug
+
+      - name: Build signed release APK
+        script: |
+          echo "🔐 Building signed release
